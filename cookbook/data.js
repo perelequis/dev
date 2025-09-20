@@ -253,7 +253,7 @@ const recipes = [
         id: 41,
         name: "Bem Casado",
         author: "Marlene Rossetti Donda",
-        image: "💑",
+        image: "👩‍❤️‍👨",
         category: "Doce",
         ingredients: [
             "6 ovos",
