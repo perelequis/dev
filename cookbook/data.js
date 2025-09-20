@@ -2023,7 +2023,7 @@ const recipes = [
     {
     id: 138,
     name: "Banoffee",
-    author: "Laís Cristina Rossetti Donda",
+    author: "Lucimara Rossetti Donda",
     image: "🍌",
     category: "Doce",
     ingredients: [
