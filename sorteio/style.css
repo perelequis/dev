@@ -4,7 +4,6 @@
     font-family: 'Inter', sans-serif;
 }
 
-/* Efeitos e Classes Utilitárias */
 .glass-effect {
     backdrop-filter: blur(20px);
     background: rgba(255, 255, 255, 0.05);
@@ -33,17 +32,19 @@
     backdrop-filter: blur(4px);
     transition: all 300ms;
 }
+
 .input-field::placeholder {
-    color: #e9d5ff; /* placeholder-purple-200 */
+    color: #e9d5ff;
 }
+
 .input-field:focus {
     background-color: rgba(255, 255, 255, 0.2);
-    border-color: #c084fc; /* focus:border-purple-400 */
+    border-color: #c084fc;
     outline: none;
 }
 
 .btn-primary {
-    background-image: linear-gradient(to right, #9333ea, #4f46e5); /* from-purple-600 to-indigo-600 */
+    background-image: linear-gradient(to right, #9333ea, #4f46e5);
     color: white;
     font-weight: 700;
     padding: 1.25rem 2rem;
@@ -52,13 +53,14 @@
     font-size: 1.25rem;
     transition: all 300ms;
 }
+
 .btn-primary:hover {
-    background-image: linear-gradient(to right, #7e22ce, #4338ca); /* hover:from-purple-700 hover:to-indigo-700 */
+    background-image: linear-gradient(to right, #7e22ce, #4338ca);
     transform: scale(1.05);
 }
 
 .btn-success {
-    background-image: linear-gradient(to right, #22c55e, #059669); /* from-green-500 to-emerald-600 */
+    background-image: linear-gradient(to right, #22c55e, #059669);
     color: white;
     font-weight: 700;
     padding: 1.25rem 2rem;
@@ -67,10 +69,12 @@
     font-size: 1.25rem;
     transition: all 300ms;
 }
+
 .btn-success:hover {
-    background-image: linear-gradient(to right, #16a34a, #047857); /* hover:from-green-600 hover:to-emerald-700 */
+    background-image: linear-gradient(to right, #16a34a, #047857);
     transform: scale(1.05);
 }
+
 .btn-success:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -87,13 +91,14 @@
     border: 1px solid rgba(255, 255, 255, 0.2);
     transition: all 300ms;
 }
+
 .btn-secondary:hover {
     background-color: rgba(255, 255, 255, 0.2);
     transform: scale(1.05);
 }
 
 .error-message {
-    color: #f87171; /* text-red-400 */
+    color: #f87171;
     text-align: center;
     font-weight: 600;
     font-size: 1.125rem;
@@ -103,7 +108,7 @@
 }
 
 .history-number {
-    background-color: #a855f7; /* bg-purple-500 */
+    background-color: #a855f7;
     color: white;
     width: 3.5rem;
     height: 3.5rem;
@@ -117,10 +122,16 @@
     animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
 }
 
-/* Animações */
 @keyframes popIn {
-    0% { transform: scale(0.5); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 @keyframes fadeInUp {
@@ -128,37 +139,64 @@
         opacity: 0;
         transform: translateY(30px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
+
 .fade-in-up {
     animation: fadeInUp 0.6s ease-out forwards;
 }
 
-/* NOVA ANIMAÇÃO DE PISCAR */
 @keyframes flashingNumbers {
-    0%, 100% { opacity: 0.6; }
-    50% { opacity: 1; }
+
+    0%,
+    100% {
+        opacity: 0.6;
+    }
+
+    50% {
+        opacity: 1;
+    }
 }
+
 .number-flashing {
-    /* Esta classe será adicionada via JS durante o sorteio */
     animation: flashingNumbers 0.1s ease-in-out infinite;
 }
 
 @keyframes finalReveal {
-    0% { opacity: 0; transform: scale(0.5) rotate(-15deg); }
-    100% { opacity: 1; transform: scale(1) rotate(0deg); }
+    0% {
+        opacity: 0;
+        transform: scale(0.5) rotate(-15deg);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
 }
+
 .final-reveal {
     animation: finalReveal 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
 }
 
 @keyframes pulse {
-    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7); }
-    50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(22, 163, 74, 0); }
+
+    0%,
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7);
+    }
+
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(22, 163, 74, 0);
+    }
 }
+
 .pulse-animation {
     animation: pulse 2s ease-in-out infinite;
+
 }
