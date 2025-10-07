@@ -25,7 +25,7 @@ const SorteadorApp = {
             quantityInput: document.getElementById('quantity'),
             startButton: document.getElementById('startButton'),
             drawButton: document.getElementById('drawButton'),
-            newDrawButton: this.createNewDrawButton(), // Botão criado dinamicamente
+            newDrawButton: this.createNewDrawButton(), 
             backButton: document.getElementById('backButton'),
             numberDisplay: document.getElementById('numberDisplay'),
             rangeDisplay: document.getElementById('rangeDisplay'),
@@ -34,14 +34,14 @@ const SorteadorApp = {
             historyDisplay: document.getElementById('historyDisplay'),
             currentYear: document.getElementById('currentYear'),
         };
-        // Adiciona o novo botão ao DOM
+        
         this.elements.drawButton.parentElement.insertBefore(this.elements.newDrawButton, this.elements.backButton);
     },
 
     createNewDrawButton() {
         const button = document.createElement('button');
         button.id = 'newDrawButton';
-        button.className = 'btn-success w-full hidden'; // Usa a mesma classe do botão de sortear
+        button.className = 'btn-success w-full hidden'; 
         button.textContent = 'Sortear Novamente';
         return button;
     },
@@ -116,7 +116,7 @@ const SorteadorApp = {
         this.elements.drawButton.classList.remove('pulse-animation');
         this.elements.backButton.disabled = true;
         this.elements.animationStatus.textContent = 'Sorteando...';
-        
+
         this.state.animationInterval = setInterval(() => {
             const randomNum = Math.floor(Math.random() * (this.state.maxNum - this.state.minNum + 1)) + this.state.minNum;
             this.elements.numberDisplay.textContent = randomNum;
@@ -138,10 +138,10 @@ const SorteadorApp = {
         this.elements.newDrawButton.classList.remove('hidden');
         this.elements.backButton.disabled = false;
     },
-    
+
     updateDisplayWithResults(results) {
         this.elements.numberDisplay.classList.add('final-reveal');
-        
+
         if (results.length === 1) {
             this.elements.numberDisplay.textContent = results[0];
             this.elements.animationStatus.innerHTML = `🎉 Número sorteado: <strong>${results[0]}</strong>`;
@@ -149,7 +149,7 @@ const SorteadorApp = {
             this.elements.numberDisplay.textContent = "OK!";
             this.elements.animationStatus.textContent = `🎉 ${results.length} números sorteados!`;
         }
-        
+
         this.elements.numberDisplay.addEventListener('animationend', () => {
             this.elements.numberDisplay.classList.remove('final-reveal');
         }, { once: true });
@@ -167,7 +167,7 @@ const SorteadorApp = {
         do {
             randomNum = Math.floor(Math.random() * (this.state.maxNum - this.state.minNum + 1)) + this.state.minNum;
         } while (this.state.usedNumbers.has(randomNum));
-        
+
         this.state.usedNumbers.add(randomNum);
         return randomNum;
     },
@@ -179,7 +179,7 @@ const SorteadorApp = {
         this.elements.drawButton.classList.remove('hidden');
         this.elements.drawButton.textContent = 'Sortear';
         this.elements.drawButton.classList.add('pulse-animation');
-        this.handleDraw(); // Inicia a animação para o próximo sorteio
+        this.handleDraw();
     },
 
     resetDrawPage() {
@@ -201,5 +201,6 @@ const SorteadorApp = {
         this.elements.overlayPage.classList.add('hidden');
     }
 };
+
 
 document.addEventListener('DOMContentLoaded', () => SorteadorApp.init());
