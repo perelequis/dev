@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorteador de Números</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-white">
+
+    <div id="mainPage" class="min-h-screen flex flex-col p-4">
+        <header class="text-center py-12">
+            <h1 class="text-5xl md:text-6xl font-bold mb-4 fade-in-up">
+                Sorteador
+            </h1>
+            <p class="text-xl text-purple-200 fade-in-up">
+                Gerador de números aleatórios!
+            </p>
+        </header>
+
+        <main class="flex-1 flex items-center justify-center">
+            <div class="glass-effect rounded-3xl p-8 md:p-12 w-full max-w-2xl card-shadow">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-semibold mb-2">Configure seu Sorteio</h2>
+                    <p class="text-purple-200">Defina os parâmetros para começar</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6 mb-6">
+                    <div class="space-y-3">
+                        <label for="minNumber" class="block text-sm font-medium text-purple-200">Número Mínimo</label>
+                        <input type="number" id="minNumber" value="1" class="input-field">
+                    </div>
+                    <div class="space-y-3">
+                        <label for="maxNumber" class="block text-sm font-medium text-purple-200">Número Máximo</label>
+                        <input type="number" id="maxNumber" value="100" class="input-field">
+                    </div>
+                </div>
+
+                <div class="space-y-3 mb-8">
+                    <label for="quantity" class="block text-sm font-medium text-purple-200">Quantidade de Números a Sortear</label>
+                    <input type="number" id="quantity" value="1" min="1" class="input-field">
+                </div>
+
+                <div id="errorMessage" class="error-message mb-6"></div>
+                
+                <button id="startButton" class="btn-primary w-full">
+                    Iniciar Sorteio
+                </button>
+            </div>
+        </main>
+
+        <footer class="text-purple-200 text-center py-4">
+            <p class="text-sm">
+                © <span id="currentYear"></span> - Todos os direitos reservados
+            </p>
+        </footer>
+    </div>
+
+    <div id="overlayPage" class="overlay fixed inset-0 hidden flex items-center justify-center p-4 z-50">
+        <div class="glass-effect rounded-3xl p-8 md:p-12 w-full max-w-4xl card-shadow fade-in-up">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-3">Sorteando...</h2>
+                <p id="rangeDisplay" class="text-xl text-purple-200"></p>
+            </div>
+            
+            <div class="mb-8">
+                <div class="bg-white/10 rounded-3xl p-10 mb-6 border border-white/20">
+                    <div id="numberDisplay" class="text-8xl md:text-9xl font-bold text-center min-h-[120px] flex items-center justify-center transition-all duration-300">
+                        ?
+                    </div>
+                </div>
+                <div id="animationStatus" aria-live="polite" class="text-xl text-center text-purple-200 min-h-[30px]">
+                    Pronto para sortear?
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <button id="drawButton" class="btn-success w-full pulse-animation">
+                    Sortear
+                </button>
+                <button id="backButton" class="btn-secondary w-full">
+                    ← Voltar e Configurar
+                </button>
+            </div>
+
+            <div>
+                <h3 class="text-xl font-semibold text-center mb-4">Números Sorteados</h3>
+                <div id="historyDisplay" class="bg-black/20 p-4 rounded-xl min-h-[60px] flex flex-wrap justify-center items-center gap-3 transition-all">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
