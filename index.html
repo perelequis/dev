@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microfone Web</title>
+    <style>
+        /* CSS Focado na Funcionalidade */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #2c3e50;
+            font-family: sans-serif;
+            color: #ecf0f1;
+            text-align: center;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        #micButton {
+            padding: 25px 50px;
+            font-size: 24px;
+            cursor: pointer;
+            border: none;
+            border-radius: 50px;
+            background-color: #27ae60; /* Verde para "Ativar" */
+            color: white;
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        #micButton:active {
+            transform: scale(0.95);
+        }
+
+        #micButton.active {
+            background-color: #c0392b; /* Vermelho para "Desativar" */
+        }
+
+        #status {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #bdc3c7;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Microfone para Dispositivo Bluetooth</h1>
+        <button id="micButton">Ativar Microfone</button>
+        <p id="status">Microfone desativado.</p>
+    </div>
+
+    <script>
+        // JavaScript com a Web Audio API
+        const micButton = document.getElementById('micButton');
+        const statusDisplay = document.getElementById('status');
+
+        let isMicOn = false;
+        let audioContext;
+        let microphoneStream;
+
+        // Função assíncrona para ligar/desligar o microfone
+        async function toggleMicrophone() {
+            if (isMicOn) {
+                // --- DESATIVAR O MICROFONE ---
+                if (microphoneStream) {
+                    // Para cada trilha (áudio, vídeo) na stream, pare-a.
+                    microphoneStream.getTracks().forEach(track => track.stop());
+                }
+                if (audioContext) {
+                    // Fecha o contexto de áudio para liberar recursos
+                    await audioContext.close();
+                }
+                
+                micButton.textContent = 'Ativar Microfone';
+                micButton.classList.remove('active');
+                statusDisplay.textContent = 'Microfone desativado.';
+                isMicOn = false;
+
+            } else {
+                // --- ATIVAR O MICROFONE ---
+                try {
+                    // 1. Pedir permissão e obter a stream de áudio do microfone
+                    microphoneStream = await navigator.mediaDevices.getUserMedia({ 
+                        audio: {
+                            // Opções para reduzir latência
+                            echoCancellation: false,
+                            noiseSuppression: false,
+                            autoGainControl: false
+                        } 
+                    });
+
+                    // 2. Criar um Contexto de Áudio
+                    // A "fábrica" que processa o som
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    
+                    // 3. Criar uma fonte de áudio a partir da stream do microfone
+                    const source = audioContext.createMediaStreamSource(microphoneStream);
+                    
+                    // 4. Conectar a fonte diretamente ao destino de saída de áudio
+                    // O destino é o alto-falante padrão do dispositivo (que será o seu aparelho Bluetooth)
+                    source.connect(audioContext.destination);
+
+                    micButton.textContent = 'Desativar Microfone';
+                    micButton.classList.add('active');
+                    statusDisplay.textContent = 'Microfone ATIVO. O áudio está sendo enviado para a saída de som.';
+                    isMicOn = true;
+
+                } catch (error) {
+                    // Lidar com erros (ex: usuário nega permissão)
+                    console.error('Erro ao acessar o microfone:', error);
+                    statusDisplay.textContent = 'Erro! Você precisa permitir o acesso ao microfone.';
+                }
+            }
+        }
+
+        // Adiciona o evento de clique ao botão
+        micButton.addEventListener('click', toggleMicrophone);
+    </script>
+
+</body>
+</html>
+
