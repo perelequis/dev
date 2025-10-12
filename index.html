@@ -3,23 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Microfone Web</title>
+    <title>Microfone Web (v3)</title>
     <style>
-        /* CSS Focado na Funcionalidade */
         body {
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #2c3e50;
-            font-family: sans-serif;
+            background-color: #1d2a35;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             color: #ecf0f1;
             text-align: center;
+            padding: 15px;
+            box-sizing: border-box;
         }
 
         .container {
-            padding: 20px;
+            max-width: 500px;
+            width: 100%;
         }
 
         #micButton {
@@ -28,10 +31,11 @@
             cursor: pointer;
             border: none;
             border-radius: 50px;
-            background-color: #27ae60; /* Verde para "Ativar" */
+            background-color: #007bff; /* Azul */
             color: white;
             transition: background-color 0.3s, transform 0.1s;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            margin-bottom: 25px;
         }
 
         #micButton:active {
@@ -39,43 +43,139 @@
         }
 
         #micButton.active {
-            background-color: #c0392b; /* Vermelho para "Desativar" */
+            background-color: #dc3545; /* Vermelho */
         }
 
         #status {
             margin-top: 20px;
             font-size: 18px;
             color: #bdc3c7;
+            min-height: 50px; /* Mais espaço para mensagens de erro */
+            font-weight: bold;
+        }
+
+        #deviceSelector {
+            margin-top: 20px;
+            visibility: hidden; /* Começa invisível */
+            opacity: 0;
+            transition: visibility 0s, opacity 0.5s linear;
+        }
+        
+        #deviceSelector.visible {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        #deviceSelector label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        #outputDevices {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid #007bff;
+            background-color: #34495e;
+            color: white;
+            font-size: 18px;
+        }
+        
+        #audioOutput {
+            display: none;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Microfone para Dispositivo Bluetooth</h1>
+        <h1>Microfone para Dispositivo Externo</h1>
+        <p>Use com fone de ouvido para evitar microfonia.</p>
         <button id="micButton">Ativar Microfone</button>
-        <p id="status">Microfone desativado.</p>
+        
+        <audio id="audioOutput" playsinline></audio>
+
+        <div id="deviceSelector">
+            <label for="outputDevices">Selecione a Saída de Áudio:</label>
+            <select id="outputDevices"></select>
+        </div>
+
+        <p id="status">Clique em "Ativar" para começar.</p>
     </div>
 
     <script>
-        // JavaScript com a Web Audio API
         const micButton = document.getElementById('micButton');
         const statusDisplay = document.getElementById('status');
+        const audioOutput = document.getElementById('audioOutput');
+        const deviceSelector = document.getElementById('deviceSelector');
+        const outputDevicesSelect = document.getElementById('outputDevices');
 
         let isMicOn = false;
-        let audioContext;
         let microphoneStream;
+        let audioContext; // Vamos gerenciar o AudioContext
 
-        // Função assíncrona para ligar/desligar o microfone
+        // Função para popular a lista de dispositivos. Chamada APÓS o stream estar ativo.
+        async function populateAudioOutputDevices() {
+            statusDisplay.textContent = 'Procurando dispositivos de saída...';
+            outputDevicesSelect.innerHTML = '';
+            
+            try {
+                // enumerateDevices só funciona de forma confiável após getUserMedia ter sucesso.
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const audioOutputs = devices.filter(device => device.kind === 'audiooutput');
+                
+                if (audioOutputs.length === 0) {
+                     statusDisplay.textContent = 'ERRO: Nenhum dispositivo de saída de áudio foi encontrado!';
+                     return;
+                }
+
+                audioOutputs.forEach((device, index) => {
+                    const option = document.createElement('option');
+                    option.value = device.deviceId;
+                    // Se a label estiver vazia, damos um nome genérico.
+                    option.text = device.label || `Dispositivo de Saída ${index + 1}`;
+                    outputDevicesSelect.appendChild(option);
+                });
+                
+                deviceSelector.classList.add('visible');
+                statusDisplay.textContent = 'Microfone ATIVO! Selecione seu dispositivo abaixo.';
+
+            } catch(error) {
+                console.error('Falha ao listar dispositivos:', error);
+                statusDisplay.textContent = 'ERRO: Falha ao tentar listar os dispositivos de áudio.';
+            }
+        }
+
+        // Função para mudar o dispositivo de saída
+        async function changeAudioOutput() {
+            const deviceId = outputDevicesSelect.value;
+            // A função 'setSinkId' é a chave para mudar a saída de áudio.
+            if (typeof audioOutput.setSinkId !== 'undefined') {
+                try {
+                    await audioOutput.setSinkId(deviceId);
+                    const selectedDeviceName = outputDevicesSelect.options[outputDevicesSelect.selectedIndex].text;
+                    console.log(`Saída de áudio alterada para: ${selectedDeviceName}`);
+                } catch (error) {
+                    console.error('Falha ao alterar a saída de áudio:', error);
+                    statusDisplay.textContent = 'ERRO: Não foi possível direcionar o áudio para este dispositivo.';
+                }
+            } else {
+                statusDisplay.textContent = 'AVISO: Seu navegador não permite a troca manual de dispositivo de áudio.';
+            }
+        }
+
+        // Função principal para ligar/desligar o microfone
         async function toggleMicrophone() {
             if (isMicOn) {
-                // --- DESATIVAR O MICROFONE ---
+                // --- DESATIVAR ---
                 if (microphoneStream) {
-                    // Para cada trilha (áudio, vídeo) na stream, pare-a.
                     microphoneStream.getTracks().forEach(track => track.stop());
                 }
-                if (audioContext) {
-                    // Fecha o contexto de áudio para liberar recursos
+                audioOutput.srcObject = null;
+                deviceSelector.classList.remove('visible');
+                
+                if (audioContext && audioContext.state !== 'closed') {
                     await audioContext.close();
                 }
                 
@@ -85,46 +185,49 @@
                 isMicOn = false;
 
             } else {
-                // --- ATIVAR O MICROFONE ---
+                // --- ATIVAR ---
                 try {
-                    // 1. Pedir permissão e obter a stream de áudio do microfone
-                    microphoneStream = await navigator.mediaDevices.getUserMedia({ 
-                        audio: {
-                            // Opções para reduzir latência
-                            echoCancellation: false,
-                            noiseSuppression: false,
-                            autoGainControl: false
-                        } 
-                    });
+                    statusDisplay.textContent = 'Solicitando permissão para o microfone...';
+                    
+                    // 1. Criar o AudioContext antes de tudo, por causa de políticas de autoplay
+                    if (!audioContext || audioContext.state === 'closed') {
+                       audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                       // Se o contexto estiver suspenso, ele precisa ser retomado por um gesto do usuário
+                       if (audioContext.state === 'suspended') {
+                           await audioContext.resume();
+                       }
+                    }
 
-                    // 2. Criar um Contexto de Áudio
-                    // A "fábrica" que processa o som
-                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    // 2. Pedir permissão e obter a stream de áudio
+                    microphoneStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    statusDisplay.textContent = 'Permissão concedida. Iniciando áudio...';
                     
-                    // 3. Criar uma fonte de áudio a partir da stream do microfone
-                    const source = audioContext.createMediaStreamSource(microphoneStream);
-                    
-                    // 4. Conectar a fonte diretamente ao destino de saída de áudio
-                    // O destino é o alto-falante padrão do dispositivo (que será o seu aparelho Bluetooth)
-                    source.connect(audioContext.destination);
+                    // 3. Conectar a stream ao elemento <audio> e tocar
+                    audioOutput.srcObject = microphoneStream;
+                    await audioOutput.play(); // O 'await' garante que o áudio começou a tocar
 
                     micButton.textContent = 'Desativar Microfone';
                     micButton.classList.add('active');
-                    statusDisplay.textContent = 'Microfone ATIVO. O áudio está sendo enviado para a saída de som.';
                     isMicOn = true;
 
+                    // 4. SOMENTE AGORA, com tudo ativo, buscamos os dispositivos
+                    await populateAudioOutputDevices();
+
                 } catch (error) {
-                    // Lidar com erros (ex: usuário nega permissão)
-                    console.error('Erro ao acessar o microfone:', error);
-                    statusDisplay.textContent = 'Erro! Você precisa permitir o acesso ao microfone.';
+                    console.error('Erro no processo de ativação:', error);
+                    if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+                        statusDisplay.textContent = 'ERRO: Você negou a permissão para o microfone.';
+                    } else {
+                        statusDisplay.textContent = 'ERRO: Não foi possível acessar o microfone. Verifique as permissões do navegador.';
+                    }
                 }
             }
         }
 
-        // Adiciona o evento de clique ao botão
+        // Event Listeners
         micButton.addEventListener('click', toggleMicrophone);
+        outputDevicesSelect.addEventListener('change', changeAudioOutput);
     </script>
 
 </body>
 </html>
-
